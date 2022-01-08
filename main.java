@@ -11,7 +11,7 @@
 import java.util.Arrays;
 import java.util.Scanner;
 import java.lang.Math;
-
+import java.io.*;
 public class Chess {
     
     
@@ -25,8 +25,12 @@ public class Chess {
         boolean gg=true;
         boolean p1turn=true;
         int x,y,xx,yy;
+        int current_player=1;
         
-        while(gg){
+        while(gg){ 
+    
+    
+    
             System.out.println("Select a piece( x ): ");
             x = scan.nextInt();
             x--;
@@ -34,7 +38,9 @@ public class Chess {
             y = scan.nextInt();
             y--;
             
-            
+            if(a.get_field_player(x,y)!=current_player){
+                continue;
+            }
 
             
             
@@ -46,10 +52,15 @@ public class Chess {
             yy--;
             
             
-            
+            if(current_player==1){
+                current_player=2;
+            }else{
+                current_player=1;
+            }
             
             a.move(x,y,xx,yy);
             a.print_board();
+            a.copy_to_move_board();
         }
     }
 }
@@ -96,8 +107,8 @@ class pawn extends piece{//poin
     public String print_piece(){return "P" + String.valueOf(player);}
 }
 class temp extends piece{//poin
-    public temp(int x){this.player=x;this.piece_type=1;}
-    public String print_piece(){return "T" + String.valueOf(player);}
+    public temp(int x){this.player=x;this.piece_type=99;}
+    public String print_piece(){return "O" + String.valueOf(player);}
     int xp,yp;
     public int pawnpositionx(){return x;}
     public int pawnpositiony(){return y;}
@@ -108,6 +119,7 @@ class temp extends piece{//poin
 }
 
 class board {
+    int temp1_time=0,temp2_time=0;
     //int[][] visible_board= new int[8][8];
     //Player 1 figures
     temp temp1 = new temp(1);
@@ -139,7 +151,7 @@ class board {
         {rook2,knight2,bishop2,king2,queen2,bishop2,knight2,rook2}
     };
     
-   String[][] move_board=new String[8][8];
+   
     
     void set_field(int a, int b, piece c){
         visible_board[a][b]=c;
@@ -148,6 +160,14 @@ class board {
     String get_field(int a, int b){
        return visible_board[a][b].print_piece();
     }
+    
+    int get_field_player(int a, int b){
+       return visible_board[a][b].return_player();
+    }
+    
+    /*
+   
+    */
 
     void print_board(){
         System.out.println("xy1  2  3  4  5  6  7  8");
@@ -159,22 +179,28 @@ class board {
         System.out.println();
         }
     }
-    void print_move_board(){   
-        System.out.println("xy1  2  3  4  5  6  7  8");
-        for (int i = 0; i < move_board.length; i++) {
-            System.out.print((i+1)+ " ");
-            for (int j = 0; j < move_board[i].length; j++) {
-                System.out.print(move_board[i][j] + " ");
+    
+    
+    
+    
+    
+    int[][] move_board=new int[8][8];
+    
+    void copy_to_move_board(){
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+               move_board[i][j] = visible_board[i][j].return_piece();
             }
-        System.out.println();
         }
+        print_move_board();
     }
     
-    void setmoveboard(){
+    void print_move_board(){   
         for (int i = 0; i < move_board.length; i++) {
             for (int j = 0; j < move_board[i].length; j++) {
-                move_board[i][j]=visible_board[i][j].print_piece();
+                System.out.print(move_board[i][j]+" ");
             }
+        System.out.println();
         }
     }
     
@@ -191,7 +217,37 @@ class board {
     
     
     void move(int x, int y, int xx, int yy){
+        int end_piece = visible_board[xx][yy].return_piece();
         int vx=0, vy=0;
+        
+        //usuń możliwośc bicie w przelocie
+        if(temp1_time>0){
+            temp1_time--;
+            if(temp1_time==1){
+                for (int i = 0; i < visible_board.length; i++) {
+                    for (int j = 0; j < visible_board[i].length; j++) {
+                        if(visible_board[i][j].return_piece()==99 && visible_board[i][j].return_player()==1){
+                            visible_board[i][j]=empty;
+                        }
+                    }
+                }
+            }
+        }
+        if(temp2_time>0){
+            temp2_time--;
+            if(temp2_time==1){
+                for (int i = 0; i < visible_board.length; i++) {
+                    for (int j = 0; j < visible_board[i].length; j++) {
+                        if(visible_board[i][j].return_piece()==99 && visible_board[i][j].return_player()==2){
+                            visible_board[i][j]=empty;
+                        }
+                    }
+                }
+            }
+        }
+
+        
+        
         // 1 pion, 2 koń, 3 goniec, 4 wieża, 5 królowa, 6 król
         if(visible_board[x][y].return_piece()==1){
                 if(visible_board[x][y].return_player()==2){
@@ -207,7 +263,9 @@ class board {
                         }else
                         if(xx==x-2 && visible_board[xx][yy].return_player()==0 && x==6){
                             visible_board[xx][yy]=visible_board[x][y];
-                            visible_board[x][y]= temp2;
+                            visible_board[x-1][y]= temp2;
+                            visible_board[x][y]= empty;
+                            temp2_time=2;
                             temp2.setpawn(x, y);
                             System.out.print("ruch do przodu p2");
                         }
@@ -217,7 +275,7 @@ class board {
                             visible_board[xx][yy]=visible_board[x][y];
                             visible_board[x][y]= new piece();
                             if(xx==0){
-                                visible_board[xx][yy]=new rook(2);
+                                visible_board[xx][yy]=new queen(2);
                                 visible_board[x][y]= new piece();
                             }
                             System.out.print("bicie p2 ");
@@ -230,14 +288,16 @@ class board {
                             visible_board[xx][yy]=visible_board[x][y];
                             visible_board[x][y]= new piece();
                             if(xx==7){
-                                visible_board[xx][yy]=new rook(1);
+                                visible_board[xx][yy]=new queen(1);
                                 visible_board[x][y]= new piece();
                             }
                             System.out.print("ruch do przodu p1");
                         }else
                         if(xx==x+2 && visible_board[xx][yy].return_player()==0 && x==1){
                             visible_board[xx][yy]=visible_board[x][y];
-                            visible_board[x][y]= temp1;
+                            visible_board[x+1][y]= temp1;
+                            visible_board[x][y]= empty;
+                            temp1_time=2;
                             temp1.setpawn(x, y);
                             System.out.print("ruch do przodu p1");
                         }
@@ -497,11 +557,58 @@ class board {
                 }while(i!=xx+vx);
             }
         }
-        if(visible_board[x][y].return_piece()==6){}
+        if(visible_board[x][y].return_piece()==6){
+            if(x>=xx){vx=-1;}
+            if(x<xx){vx=1;}
+            if(y>=yy){vy=-1;}
+            if(y<yy){vy=1;}
+            int i =x+vx;
+            int j =y+vy;
+            do{
+                if(Math.abs(x-xx)>1 || Math.abs(y-yy) > 1){
+                    System.out.print("co tu sie");
+                    break;
+                }
+                            if(visible_board[xx][yy].return_player() == visible_board[x][y].return_player()){
+                                System.out.print("ten sam gracz ");
+                                break;
+                            }else  
+                            if(visible_board[xx][yy].return_player() != visible_board[x][y].return_player() && visible_board[xx][yy].return_player()!=0){
+                                System.out.print("pion wroga na koncu ");
+                                visible_board[xx][yy]=visible_board[x][y];
+                                visible_board[x][y]= new piece();
+                                break;
+                            }else 
+                            if( visible_board[xx][yy].return_player()==0){
+                                System.out.print("puste pole koncowe ");
+                                visible_board[xx][yy]=visible_board[x][y];
+                                visible_board[x][y]= new piece();
+                                break;
+                            }else 
+                            if (true){
+                            System.out.print("co jest k");
+                            }
+            }while(false);
+        }
         
         
         
         
+        if(visible_board[x][y].return_player()==0 ){
+            if((end_piece==99) && visible_board[xx][yy].return_piece()!=99){
+                if(visible_board[xx][yy].return_player()==1){
+                    visible_board[xx-1][yy]=empty;
+                }else if(visible_board[xx][yy].return_player()==2){
+                    visible_board[xx+1][yy]=empty;
+                }
+            }
+        }
 
+
+
+
+        
+        
     }
+    
 }
