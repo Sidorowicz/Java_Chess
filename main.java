@@ -60,7 +60,7 @@ public class Chess {
             
             a.move(x,y,xx,yy);
             a.print_board();
-            a.copy_to_move_board();
+            a.check_mat(current_player);
         }
     }
 }
@@ -144,7 +144,7 @@ class board {
         {rook1,knight1,bishop1,queen1,king1,bishop1,knight1,rook1},
         {pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1},
         {empty,empty,empty,empty,empty,empty,empty,empty},
-        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,king2},
         {empty,empty,empty,empty,empty,empty,empty,empty},
         {empty,empty,empty,empty,empty,empty,empty,empty},
         {pawn2,pawn2,pawn2,pawn2,pawn2,pawn2,pawn2,pawn2},
@@ -163,6 +163,28 @@ class board {
     
     int get_field_player(int a, int b){
        return visible_board[a][b].return_player();
+    }
+    
+    int king_x(int player){
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+               if(visible_board[i][j].return_player()==2 && visible_board[i][j].return_piece()==6){
+                   return i;
+               }
+            }
+        }
+        return -1;
+    }
+    
+    int king_y(int player){
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+               if(visible_board[i][j].return_player()==2 && visible_board[i][j].return_piece()==6){
+                   return j;
+               }
+            }
+        }
+        return -1;
     }
     
     /*
@@ -185,7 +207,7 @@ class board {
     
     
     int[][] move_board=new int[8][8];
-    
+    /*
     void copy_to_move_board(){
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
@@ -203,6 +225,19 @@ class board {
         System.out.println();
         }
     }
+*/
+    
+    void check_mat(int player){
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+               if(visible_board[i][j].return_piece()!=0 && visible_board[i][j].return_piece()!=99){
+                   if(check_all_pieces(i,j,king_x(player),king_y(player))==true){
+                   System.out.println("Szach");
+                   }
+               }
+            }
+        }  
+    }
     
     
     
@@ -217,6 +252,8 @@ class board {
     
     
     void move(int x, int y, int xx, int yy){
+        
+        
         int end_piece = visible_board[xx][yy].return_piece();
         int vx=0, vy=0;
         
@@ -259,7 +296,8 @@ class board {
                                 visible_board[xx][yy]=new rook(2);
                                 visible_board[x][y]= new piece();
                             }
-                            System.out.print("ruch do przodu p2");
+                            //System.out.print("ruch do przodu p2");
+                         
                         }else
                         if(xx==x-2 && visible_board[xx][yy].return_player()==0 && x==6){
                             visible_board[xx][yy]=visible_board[x][y];
@@ -267,7 +305,8 @@ class board {
                             visible_board[x][y]= empty;
                             temp2_time=2;
                             temp2.setpawn(x, y);
-                            System.out.print("ruch do przodu p2");
+                            //System.out.print("ruch do przodu p2");
+                          
                         }
                     }else 
                     if((yy==y+1 && visible_board[x-1][y+1].return_player()==1) || (yy==y-1 && visible_board[x-1][y-1].return_player()==1)){
@@ -278,7 +317,8 @@ class board {
                                 visible_board[xx][yy]=new queen(2);
                                 visible_board[x][y]= new piece();
                             }
-                            System.out.print("bicie p2 ");
+                            //System.out.print("bicie p2 ");
+                           
                         }
                     }
                 }
@@ -291,7 +331,8 @@ class board {
                                 visible_board[xx][yy]=new queen(1);
                                 visible_board[x][y]= new piece();
                             }
-                            System.out.print("ruch do przodu p1");
+                            //System.out.print("ruch do przodu p1");
+                          
                         }else
                         if(xx==x+2 && visible_board[xx][yy].return_player()==0 && x==1){
                             visible_board[xx][yy]=visible_board[x][y];
@@ -299,7 +340,8 @@ class board {
                             visible_board[x][y]= empty;
                             temp1_time=2;
                             temp1.setpawn(x, y);
-                            System.out.print("ruch do przodu p1");
+                            //System.out.print("ruch do przodu p1");
+                         
                         }
                     }else 
                      if((yy==y+1 && visible_board[x+1][y+1].return_player()==2) || (yy==y-1 && visible_board[x+1][y-1].return_player()==2)){
@@ -310,7 +352,8 @@ class board {
                                 visible_board[xx][yy]=new rook(1);
                                 visible_board[x][y]= new piece();
                             }
-                            System.out.print("bicie p1");
+                            //System.out.print("bicie p1");
+                          
                         }
                     } 
                 }   
@@ -321,10 +364,12 @@ class board {
                 if(visible_board[x][y].return_player() != visible_board[xx][yy].return_player() && visible_board[xx][yy].return_player()==0){
                     visible_board[xx][yy]=visible_board[x][y];
                     visible_board[x][y]= new piece();
+                  
                 }
                 if(visible_board[x][y].return_player() != visible_board[xx][yy].return_player() && visible_board[xx][yy].return_player()!=0){
                     visible_board[xx][yy]=visible_board[x][y];
                     visible_board[x][y]= new piece();
+                    
                 }
             }
         }
@@ -336,32 +381,40 @@ class board {
             int i =x+vx;
             int j =y+vy;
             do{
-                if(Math.abs(x-xx)-Math.abs(y-yy) != 0){System.out.print("co tu sie");break;}
+                if(Math.abs(x-xx)-Math.abs(y-yy) != 0){
+                                       
+                    break;
+                }
                             if(visible_board[i][j].return_player() == visible_board[x][y].return_player()){
-                                System.out.print("ten sam gracz ");
+                              
+                                //System.out.print("ten sam gracz ");
                                 break;
                             }else  
                             if(visible_board[i][j].return_player() != visible_board[x][y].return_player() && visible_board[i][j].return_player()!=0 && i==xx){
-                                System.out.print("pion wroga na koncu ");
+                                //System.out.print("pion wroga na koncu ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                              
                                 break;
                             }else 
                             if(visible_board[i][j].return_player() != visible_board[x][y].return_player() && visible_board[i][j].return_player()!=0 && i!=xx){
-                                System.out.print("pion wroga po drodze ");
+                                //System.out.print("pion wroga po drodze ");
+                             
                                 break;
                             }else
                             if(i==xx && visible_board[i][j].return_player()==0){
-                                System.out.print("puste pole koncowe ");
+                                //System.out.print("puste pole koncowe ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                               
                                 break;
                             }else 
                             if(visible_board[i][j].return_player()==0){
-                                System.out.print("puste pole ");
+                                //System.out.print("puste pole ");
                             }else
                             if (true){
-                            System.out.print("co jest k");
+                            //System.out.print("co jest k");
+                           
                             }
                         i+=vx;
                         j+=vy;
@@ -375,30 +428,35 @@ class board {
                         int i =x+vx;
                         do{
                             if(visible_board[i][y].return_player() == visible_board[x][y].return_player()){
-                                System.out.print("ten sam gracz ");
+                                //System.out.print("ten sam gracz ");
+                               
                                 break;
                             }else  
                             if(visible_board[i][y].return_player() != visible_board[x][y].return_player() && visible_board[i][y].return_player()!=0 && i==xx){
-                                System.out.print("pion wroga na koncu ");
+                                //System.out.print("pion wroga na koncu ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                               
                                 break;
                             }else 
                             if(visible_board[i][y].return_player() != visible_board[x][y].return_player() && visible_board[i][y].return_player()!=0 && i!=xx){
-                                System.out.print("pion wroga po drodze ");
+                                //System.out.print("pion wroga po drodze ");
                                 break;
+                             
                             }else
                             if(i==xx && visible_board[i][y].return_player()==0){
-                                System.out.print("puste pole koncowe ");
+                                //System.out.print("puste pole koncowe ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                               
                                 break;
                             }else 
                             if(visible_board[i][y].return_player()==0){
-                                System.out.print("puste pole ");
+                                //System.out.print("puste pole ");
                             }else
                             if (true){
-                            System.out.print("co jest k");
+                            //System.out.print("co jest k");
+                       
                             }
                         i+=vx;
                         }while(i!=xx+vx);
@@ -410,36 +468,42 @@ class board {
                         int j=y+vy;
                         do{
                             if(visible_board[x][j].return_player() == visible_board[x][y].return_player()){
-                                System.out.print("ten sam gracz ");
+                                //System.out.print("ten sam gracz ");
                                 break;
+                                
                             }else
                             if(visible_board[x][j].return_player() != visible_board[x][y].return_player() && visible_board[x][j].return_player()!=0 && j==yy){
-                                System.out.print("pion wroga na koncu ");
+                                //System.out.print("pion wroga na koncu ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                            
                                 break;
                             }else
                             if(visible_board[x][j].return_player() != visible_board[x][y].return_player() && visible_board[x][j].return_player()!=0 && j!=yy){
-                                System.out.print("pion wroga po drodze ");
+                                //System.out.print("pion wroga po drodze ");
                                 break;
+                            
                             }else
                             if(j==yy && visible_board[x][j].return_player()==0){
-                                System.out.print("puste pole koncowe ");
+                                //System.out.print("puste pole koncowe ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                               
                                 break;
                             }else 
                             if(visible_board[x][j].return_player()==0 && j!=yy){
-                                System.out.print("puste pole ");
+                                //System.out.print("puste pole ");
                             }else 
                             if (true){
-                            System.out.print("co jest k");
+                            //System.out.print("co jest k");
+                         
                             }
                         j+=vy;
                         }while(j!=yy+vy);
                     }
                     else if(x!=xx && y!=yy){
-                        System.out.print("error ");
+                        //System.out.print("error ");
+                      
                     }
         }
         if(visible_board[x][y].return_piece()==5){
@@ -451,30 +515,35 @@ class board {
                         int i =x+vx;
                         do{
                             if(visible_board[i][y].return_player() == visible_board[x][y].return_player()){
-                                System.out.print("ten sam gracz ");
+                                //System.out.print("ten sam gracz ");
                                 break;
+                           
                             }else  
                             if(visible_board[i][y].return_player() != visible_board[x][y].return_player() && visible_board[i][y].return_player()!=0 && i==xx){
-                                System.out.print("pion wroga na koncu ");
+                                //System.out.print("pion wroga na koncu ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                             
                                 break;
                             }else 
                             if(visible_board[i][y].return_player() != visible_board[x][y].return_player() && visible_board[i][y].return_player()!=0 && i!=xx){
-                                System.out.print("pion wroga po drodze ");
+                                //System.out.print("pion wroga po drodze ");
                                 break;
+                             
                             }else
                             if(i==xx && visible_board[i][y].return_player()==0){
-                                System.out.print("puste pole koncowe ");
+                                //System.out.print("puste pole koncowe ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                             
                                 break;
                             }else 
                             if(visible_board[i][y].return_player()==0){
-                                System.out.print("puste pole ");
+                                //System.out.print("puste pole ");
                             }else
                             if (true){
-                            System.out.print("co jest k");
+                            //System.out.print("co jest k");
+                        
                             }
                         i+=vx;
                         }while(i!=xx+vx);
@@ -486,36 +555,41 @@ class board {
                         int j=y+vy;
                         do{
                             if(visible_board[x][j].return_player() == visible_board[x][y].return_player()){
-                                System.out.print("ten sam gracz ");
+                                //System.out.print("ten sam gracz ");
                                 break;
+                               
                             }else
                             if(visible_board[x][j].return_player() != visible_board[x][y].return_player() && visible_board[x][j].return_player()!=0 && j==yy){
-                                System.out.print("pion wroga na koncu ");
+                                //System.out.print("pion wroga na koncu ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
                                 break;
+                              
                             }else
                             if(visible_board[x][j].return_player() != visible_board[x][y].return_player() && visible_board[x][j].return_player()!=0 && j!=yy){
-                                System.out.print("pion wroga po drodze ");
+                                //System.out.print("pion wroga po drodze ");
                                 break;
+                               
                             }else
                             if(j==yy && visible_board[x][j].return_player()==0){
-                                System.out.print("puste pole koncowe ");
+                                //System.out.print("puste pole koncowe ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
                                 break;
+                              
                             }else 
                             if(visible_board[x][j].return_player()==0 && j!=yy){
-                                System.out.print("puste pole ");
+                                //System.out.print("puste pole ");
                             }else 
                             if (true){
-                            System.out.print("co jest k");
+                            //System.out.print("co jest k");
+                       
                             }
                         j+=vy;
                         }while(j!=yy+vy);
                     }
                     else if(x!=xx && y!=yy){
-                        System.out.print("error ");
+                        //System.out.print("error ");
                     }
             }else{
                 if(x>=xx){vx=-1;}
@@ -525,32 +599,40 @@ class board {
                 int i =x+vx;
                 int j =y+vy;
                 do{
-                    if(Math.abs(x-xx)-Math.abs(y-yy) != 0){System.out.print("co tu sie");break;}
+                    if(Math.abs(x-xx)-Math.abs(y-yy) != 0){
+                        break;
+                 
+                    }
                                 if(visible_board[i][j].return_player() == visible_board[x][y].return_player()){
-                                    System.out.print("ten sam gracz ");
+                                    //System.out.print("ten sam gracz ");
                                     break;
+                                  
                                 }else  
                                 if(visible_board[i][j].return_player() != visible_board[x][y].return_player() && visible_board[i][j].return_player()!=0 && i==xx){
-                                    System.out.print("pion wroga na koncu ");
+                                    //System.out.print("pion wroga na koncu ");
                                     visible_board[xx][yy]=visible_board[x][y];
                                     visible_board[x][y]= new piece();
+                                
                                     break;
                                 }else 
                                 if(visible_board[i][j].return_player() != visible_board[x][y].return_player() && visible_board[i][j].return_player()!=0 && i!=xx){
-                                    System.out.print("pion wroga po drodze ");
+                                    //System.out.print("pion wroga po drodze ");
                                     break;
+                                  
                                 }else
                                 if(i==xx && visible_board[i][j].return_player()==0){
-                                    System.out.print("puste pole koncowe ");
+                                    //System.out.print("puste pole koncowe ");
                                     visible_board[xx][yy]=visible_board[x][y];
                                     visible_board[x][y]= new piece();
                                     break;
+                                    
                                 }else 
                                 if(visible_board[i][j].return_player()==0){
-                                    System.out.print("puste pole ");
+                                    //System.out.print("puste pole ");
                                 }else
                                 if (true){
-                                System.out.print("co jest k");
+                                //System.out.print("co jest k");
+                               
                                 }
                             i+=vx;
                             j+=vy;
@@ -566,27 +648,32 @@ class board {
             int j =y+vy;
             do{
                 if(Math.abs(x-xx)>1 || Math.abs(y-yy) > 1){
-                    System.out.print("co tu sie");
+                    //System.out.print("co tu sie");
                     break;
+                  
                 }
                             if(visible_board[xx][yy].return_player() == visible_board[x][y].return_player()){
-                                System.out.print("ten sam gracz ");
+                                //System.out.print("ten sam gracz ");
                                 break;
+                              
                             }else  
                             if(visible_board[xx][yy].return_player() != visible_board[x][y].return_player() && visible_board[xx][yy].return_player()!=0){
-                                System.out.print("pion wroga na koncu ");
+                                //System.out.print("pion wroga na koncu ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                               
                                 break;
                             }else 
                             if( visible_board[xx][yy].return_player()==0){
-                                System.out.print("puste pole koncowe ");
+                                //System.out.print("puste pole koncowe ");
                                 visible_board[xx][yy]=visible_board[x][y];
                                 visible_board[x][y]= new piece();
+                             
                                 break;
                             }else 
                             if (true){
-                            System.out.print("co jest k");
+                            //System.out.print("co jest k");
+
                             }
             }while(false);
         }
@@ -608,7 +695,264 @@ class board {
 
 
         
-        
+    
     }
     
+    
+    
+    
+    boolean check_all_pieces(int x, int y, int xx, int yy){
+        int vx=0, vy=0;
+        // 1 pion, 2 koń, 3 goniec, 4 wieża, 5 królowa, 6 król
+        if(visible_board[x][y].return_piece()==1){
+                if(visible_board[x][y].return_player()==2){
+                    if(y==yy){//ruch
+                        if(xx==x-1 && visible_board[xx][yy].return_player()==0){
+                            return true; 
+                        }else
+                        if(xx==x-2 && visible_board[xx][yy].return_player()==0 && x==6){
+                            return true;
+                        }
+                    }else 
+                    if((yy==y+1 && visible_board[x-1][y+1].return_player()==1) || (yy==y-1 && visible_board[x-1][y-1].return_player()==1)){
+                        if(xx==x-1){
+                            return true;
+                        }
+                    }
+                }
+                if(visible_board[x][y].return_player()==1){
+                    if(y==yy){
+                        if(xx==x+1 && visible_board[xx][yy].return_player()==0){
+                            return true;
+                        }else
+                        if(xx==x+2 && visible_board[xx][yy].return_player()==0 && x==1){
+                            return true;
+                        }
+                    }else 
+                     if((yy==y+1 && visible_board[x+1][y+1].return_player()==2) || (yy==y-1 && visible_board[x+1][y-1].return_player()==2)){
+                        if(xx==x+1){
+                            return true;
+                        }
+                    } 
+                }   
+        }
+        if(visible_board[x][y].return_piece()==2){
+            
+            if( (Math.abs(x-xx)==2 && Math.abs(y-yy)==1) || (Math.abs(x-xx)==1 && Math.abs(y-yy)==2) ){
+                if(visible_board[x][y].return_player() != visible_board[xx][yy].return_player() && visible_board[xx][yy].return_player()==0){
+                    return true;
+                }
+                if(visible_board[x][y].return_player() != visible_board[xx][yy].return_player() && visible_board[xx][yy].return_player()!=0){
+                    return true;
+                }
+            }
+        }
+        if(visible_board[x][y].return_piece()==3){
+            if(x>=xx){vx=-1;}
+            if(x<xx){vx=1;}
+            if(y>=yy){vy=-1;}
+            if(y<yy){vy=1;}
+            int i =x+vx;
+            int j =y+vy;
+            do{
+                if(Math.abs(x-xx)-Math.abs(y-yy) != 0){
+                    return false;                    
+                }
+                            if(visible_board[i][j].return_player() == visible_board[x][y].return_player()){
+                                return false;
+                            }else  
+                            if(visible_board[i][j].return_player() != visible_board[x][y].return_player() && visible_board[i][j].return_player()!=0 && i==xx){
+                                return true;
+                            }else 
+                            if(visible_board[i][j].return_player() != visible_board[x][y].return_player() && visible_board[i][j].return_player()!=0 && i!=xx){
+                                return false;
+                            }else
+                            if(i==xx && visible_board[i][j].return_player()==0){
+                                return true;
+                            }else 
+                            if(visible_board[i][j].return_player()==0){
+                            }else
+                            if (true){
+                            return false;
+                            }
+                        i+=vx;
+                        j+=vy;
+            }while(i!=xx+vx);
+        }
+        if(visible_board[x][y].return_piece()==4){
+                    if(y==yy){
+                        if(x>=xx){vx=-1;}
+                        if(x<=xx){vx=1;}
+                        int i =x+vx;
+                        do{
+                            if(visible_board[i][y].return_player() == visible_board[x][y].return_player()){
+                                return false;
+                            }else  
+                            if(visible_board[i][y].return_player() != visible_board[x][y].return_player() && visible_board[i][y].return_player()!=0 && i==xx){
+                                return true;
+                            }else 
+                            if(visible_board[i][y].return_player() != visible_board[x][y].return_player() && visible_board[i][y].return_player()!=0 && i!=xx){
+
+                                return false;
+                            }else
+                            if(i==xx && visible_board[i][y].return_player()==0){
+                                return true;
+                            }else 
+                            if(visible_board[i][y].return_player()==0){
+                            }else
+                            if (true){
+                            return false;
+                            }
+                        i+=vx;
+                        }while(i!=xx+vx);
+                    }
+                    else if(x==xx){
+                        if(y>=yy){vy=-1;}
+                        if(y<=yy){vy=1;}
+                        int j=y+vy;
+                        do{
+                            if(visible_board[x][j].return_player() == visible_board[x][y].return_player()){
+                                return false;
+                            }else
+                            if(visible_board[x][j].return_player() != visible_board[x][y].return_player() && visible_board[x][j].return_player()!=0 && j==yy){
+                                return true;
+                            }else
+                            if(visible_board[x][j].return_player() != visible_board[x][y].return_player() && visible_board[x][j].return_player()!=0 && j!=yy){
+                                return false;
+                            }else
+                            if(j==yy && visible_board[x][j].return_player()==0){
+                                return true;
+                            }else 
+                            if(visible_board[x][j].return_player()==0 && j!=yy){
+                            }else 
+                            if (true){
+                            return false;
+                            }
+                        j+=vy;
+                        }while(j!=yy+vy);
+                    }
+                    else if(x!=xx && y!=yy){
+                        return false;
+                    }
+        }
+        if(visible_board[x][y].return_piece()==5){
+            if(y==yy || x==xx){
+                if(y==yy){
+                        if(x>=xx){vx=-1;}
+                        if(x<=xx){vx=1;}
+                        int i =x+vx;
+                        do{
+                            if(visible_board[i][y].return_player() == visible_board[x][y].return_player()){
+                                return false;
+                            }else  
+                            if(visible_board[i][y].return_player() != visible_board[x][y].return_player() && visible_board[i][y].return_player()!=0 && i==xx){
+                                return true;
+                            }else 
+                            if(visible_board[i][y].return_player() != visible_board[x][y].return_player() && visible_board[i][y].return_player()!=0 && i!=xx){
+                                return false;
+                            }else
+                            if(i==xx && visible_board[i][y].return_player()==0){
+                                return true;
+                            }else 
+                            if(visible_board[i][y].return_player()==0){
+                            }else
+                            if (true){
+                            return false;
+                            }
+                        i+=vx;
+                        }while(i!=xx+vx);
+                    }
+                    else if(x==xx){
+                        if(y>=yy){vy=-1;}
+                        if(y<=yy){vy=1;}
+                        int j=y+vy;
+                        do{
+                            if(visible_board[x][j].return_player() == visible_board[x][y].return_player()){
+                                return false;
+                            }else
+                            if(visible_board[x][j].return_player() != visible_board[x][y].return_player() && visible_board[x][j].return_player()!=0 && j==yy){
+                                return true;
+                            }else
+                            if(visible_board[x][j].return_player() != visible_board[x][y].return_player() && visible_board[x][j].return_player()!=0 && j!=yy){
+                                return false;
+                            }else
+                            if(j==yy && visible_board[x][j].return_player()==0){
+                               return true;
+                            }else 
+                            if(visible_board[x][j].return_player()==0 && j!=yy){
+                            }else 
+                            if (true){
+                            return false;
+                            }
+                        j+=vy;
+                        }while(j!=yy+vy);
+                    }
+                    else if(x!=xx && y!=yy){
+                    }
+            }else{
+                if(x>=xx){vx=-1;}
+                if(x<xx){vx=1;}
+                if(y>=yy){vy=-1;}
+                if(y<yy){vy=1;}
+                int i =x+vx;
+                int j =y+vy;
+                do{
+                    if(Math.abs(x-xx)-Math.abs(y-yy) != 0){
+                    return false;
+                    }
+                                if(visible_board[i][j].return_player() == visible_board[x][y].return_player()){
+                                    return false;
+                                }else  
+                                if(visible_board[i][j].return_player() != visible_board[x][y].return_player() && visible_board[i][j].return_player()!=0 && i==xx){
+                                    return true;
+                                }else 
+                                if(visible_board[i][j].return_player() != visible_board[x][y].return_player() && visible_board[i][j].return_player()!=0 && i!=xx){
+                                    return false;
+                                }else
+                                if(i==xx && visible_board[i][j].return_player()==0){
+                                    return true;
+                                }else 
+                                if(visible_board[i][j].return_player()==0){
+                                }else
+                                if (true){
+                                return false;
+                                }
+                            i+=vx;
+                            j+=vy;
+                }while(i!=xx+vx);
+            }
+        }
+        if(visible_board[x][y].return_piece()==6){
+            if(x>=xx){vx=-1;}
+            if(x<xx){vx=1;}
+            if(y>=yy){vy=-1;}
+            if(y<yy){vy=1;}
+            int i =x+vx;
+            int j =y+vy;
+            do{
+                if(Math.abs(x-xx)>1 || Math.abs(y-yy) > 1){
+                    return false;
+                }
+                            if(visible_board[xx][yy].return_player() == visible_board[x][y].return_player()){
+                                return false;
+                            }else  
+                            if(visible_board[xx][yy].return_player() != visible_board[x][y].return_player() && visible_board[xx][yy].return_player()!=0){
+                                return true;
+                            }else 
+                            if( visible_board[xx][yy].return_player()==0){
+                                return true;
+                            }else 
+                            if (true){
+                            return false;
+                            }
+            }while(false);
+        }
+        
+        
+
+
+
+        
+    return false;
+    }
 }
