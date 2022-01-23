@@ -20,9 +20,8 @@ public class Chess {
         move_controller a= new move_controller();
         a.print_board();
         boolean gg=true;
-        boolean p1turn=true;
         int x,y,xx,yy;
-        int current_player=1,opp=2;
+        int current_player=2,opp=1;
         
         while(gg){
                 
@@ -51,30 +50,30 @@ public class Chess {
             next=a.visible_board[xx][yy];
             
             
-            
+                System.out.println("--przed wykonaniem ruchu--");
             a.move(x,y,xx,yy);
             if(a.check_mat(current_player)==true){
+                System.out.println("--twoj krol jest atakowany--");
                 System.out.println("Zły ruch");
                 a.visible_board[xx][yy]=next;
                 a.visible_board[x][y]=prev;
-                a.print_board();
                 continue;
             }else{
+                System.out.println("--twoj krol nie jest atakowany--");
                 a.print_board();
                 if(a.check_mat(opp)){
+                    System.out.println("--krol wroga jest atakowany--");
                     System.out.println("Szach");
-                    if(a.check_mat2(opp)){break;}
+                    if(a.check_mat2(opp)){System.out.println("--krol wroga jest zmatowany--");break;}
                 }
-                //a.check_mat(opp);
-                //a.check_mat2(current_player);
-                if(current_player==1){current_player=2;opp=1;}else{current_player=1;opp=2;}
+                if(current_player==1){System.out.println("--zmiana gracza--");current_player=2;opp=1;}else{current_player=1;opp=2;}
             }
             
             
             
             
         }
-        System.out.println("Wygrał gracz : "+opp);
+        System.out.println("Wygrał gracz : "+current_player);
         
     }
 }
@@ -173,17 +172,59 @@ class move_controller {
     };
     */
     
+    //normalna partia
+    
     piece[][] visible_board={
-        {king2,empty,empty,empty,empty,empty,empty,empty},
+        {rook1,knight1,bishop1,queen1,king1,bishop1,knight1,rook1},
+        {pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1},
         {empty,empty,empty,empty,empty,empty,empty,empty},
-        {empty,queen1,empty,empty,empty,empty,empty,empty},
         {empty,empty,empty,empty,empty,empty,empty,empty},
         {empty,empty,empty,empty,empty,empty,empty,empty},
         {empty,empty,empty,empty,empty,empty,empty,empty},
         {pawn2,pawn2,pawn2,pawn2,pawn2,pawn2,pawn2,pawn2},
-        {rook1,empty,empty,empty,king1,empty,empty,rook1}
+        {rook2,knight2,bishop2,queen2,king2,bishop2,knight2,rook2}
     };
-    
+
+    //sprawdź roszade
+    /*
+     piece[][] visible_board={
+        {empty,empty,empty,empty,empty,empty,empty,king1},
+        {pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {rook2,empty,empty,empty,king2,empty,empty,rook2}
+    };
+*/
+    //sprawdź bicie w przelocie
+    /*
+     piece[][] visible_board={
+        {king1,empty,empty,empty,empty,empty,empty,king2},
+        {pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,rook1,empty},
+        {empty,empty,empty,empty,empty,pawn2,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty}
+    };
+*/
+    //sprawdź szach/mat
+/*
+     piece[][] visible_board={
+        {king1,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,king2,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,queen2,empty,empty,empty,empty,empty,empty}
+    };
+*/
+
    
     
     void set_field(int a, int b, piece c){
@@ -197,33 +238,27 @@ class move_controller {
     int get_field_player(int a, int b){
        return visible_board[a][b].return_player();
     }
-    
+
     int king_x(int player){
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-               if(visible_board[i][j].return_player()==2 && visible_board[i][j].return_piece()==6){
+               if(visible_board[i][j].return_player()==player && visible_board[i][j].return_piece()==6){
                    return i;
                }
             }
         }
         return -1;
     }
-    
     int king_y(int player){
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-               if(visible_board[i][j].return_player()==2 && visible_board[i][j].return_piece()==6){
+               if(visible_board[i][j].return_player()==player && visible_board[i][j].return_piece()==6){
                    return j;
                }
             }
         }
         return -1;
     }
-    
-    /*
-   
-    */
-
     void print_board(){
         System.out.println("xy1  2  3  4  5  6  7  8");
         for (int i = 0; i < visible_board.length; i++) {
@@ -234,43 +269,17 @@ class move_controller {
         System.out.println();
         }
     }
-    
     void revoke(int xx,int yy,int x,int y){
         visible_board[x][y]=visible_board[xx][yy]; 
         visible_board[xx][yy]=empty;
     }
-    
-    
-    
-    
     int[][] move_board=new int[8][8];
-    /*
-    void copy_to_move_board(){
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-               move_board[i][j] = visible_board[i][j].return_piece();
-            }
-        }
-        print_move_board();
-    }
-    
-    void print_move_board(){   
-        for (int i = 0; i < move_board.length; i++) {
-            for (int j = 0; j < move_board[i].length; j++) {
-                System.out.print(move_board[i][j]+" ");
-            }
-        System.out.println();
-        }
-    }
-*/
-    
-    boolean check_mat(int player){
+    boolean check_mat(int player){//sprawdza czy podany gracz jest szachowany
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
                 //jesli wybrana figura nie jest pusta lub biciem w przelocie i nalezy do gracza
                if(visible_board[i][j].return_piece()!=0 && visible_board[i][j].return_piece()!=99 && visible_board[i][j].return_player()!=player){
                    if(check_all_pieces(i,j,king_x(player),king_y(player))==true){
-                   //System.out.println("Szach");
                    return true;
                 }
                }
@@ -278,27 +287,25 @@ class move_controller {
         }
         return false;
     }
-    
-    
     boolean check_mat2(int cplayer){
         boolean f = true;
         piece pre, nex;
         
         for (int p = 0; p < 8; p++) {
             for (int o = 0; o < 8; o++) {
-               if(visible_board[p][o].return_piece()!=0 && visible_board[p][o].return_piece()==cplayer && visible_board[p][o].return_piece()!=99){
+               if(visible_board[p][o].return_piece()!=0 && visible_board[p][o].return_player()==cplayer && visible_board[p][o].return_piece()!=99){
                     for (int k = 0; k < 8; k++) {
                         for (int l = 0; l < 8; l++) {
                                 if(check_all_pieces(p,o,k,l)){
-                                    
                                     pre=visible_board[p][o];
                                     nex=visible_board[k][l];
                                     move(p,o,k,l);
-                                    
                                     if(check_mat(cplayer)==false){
                                         visible_board[p][o]=pre;
                                         visible_board[k][l]=nex;
+                                        System.out.println("Z :"+p+o+" do :"+k+l);
                                         return false;
+                                        
                                     }
                                     visible_board[p][o]=pre;
                                     visible_board[k][l]=nex;
@@ -432,17 +439,11 @@ class move_controller {
                 }   
         }
         if(visible_board[x][y].return_piece()==2){
-            
             if( (Math.abs(x-xx)==2 && Math.abs(y-yy)==1) || (Math.abs(x-xx)==1 && Math.abs(y-yy)==2) ){
                 if(visible_board[x][y].return_player() != visible_board[xx][yy].return_player() && visible_board[xx][yy].return_player()==0){
                     visible_board[xx][yy]=visible_board[x][y];
                     visible_board[x][y]= new piece();
                   
-                }
-                if(visible_board[x][y].return_player() != visible_board[xx][yy].return_player() && visible_board[xx][yy].return_player()!=0){
-                    visible_board[xx][yy]=visible_board[x][y];
-                    visible_board[x][y]= new piece();
-                    
                 }
             }
         }
@@ -499,7 +500,11 @@ class move_controller {
                         if(x<=xx){vx=1;}
                         //for(int i=x+vx;i!=xx;i+=vx)
                         int i =x+vx;
+                        
                         do{
+                            if(x==xx && y==yy){
+                                break;
+                            }
                             if(visible_board[i][y].return_player() == visible_board[x][y].return_player()){
                                 //System.out.print("ten sam gracz ");
                                
@@ -876,6 +881,9 @@ class move_controller {
                         if(x<=xx){vx=1;}
                         int i =x+vx;
                         do{
+                            if(x==xx && y==yy){
+                                return false;
+                            }
                             if(visible_board[i][y].return_player() == visible_board[x][y].return_player()){
                                 return false;
                             }else  
@@ -933,6 +941,9 @@ class move_controller {
                         if(x<=xx){vx=1;}
                         int i =x+vx;
                         do{
+                            if(x==xx && y==yy){
+                                return false;
+                            }
                             if(visible_board[i][y].return_player() == visible_board[x][y].return_player()){
                                 return false;
                             }else  
