@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 
 /**
  *
@@ -19,106 +15,130 @@ public class Chess {
     
     
     public static void main(String[] args) {
+        piece prev, next;
         Scanner scan = new Scanner(System.in);
-        board a= new board();
+        move_controller a= new move_controller();
         a.print_board();
         boolean gg=true;
         boolean p1turn=true;
         int x,y,xx,yy;
-        int current_player=1;
+        int current_player=1,opp=2;
         
-        while(gg){ 
+        while(gg){
+                
+               System.out.println("Player "+current_player);
     
-    
-    
-            System.out.println("Select a piece( x ): ");
-            x = scan.nextInt();
-            x--;
-            System.out.println("Select a piece( y ): ");
-            y = scan.nextInt();
-            y--;
-            
-            if(a.get_field_player(x,y)!=current_player){
-                continue;
-            }
+            do{
+                System.out.println("Select a piece( x ): ");
+                x = scan.nextInt();
+                x--;
+                System.out.println("Select a piece( y ): ");
+                y = scan.nextInt();
+                y--;
+            }while(a.get_field_player(x,y)!=current_player);
+                prev=a.visible_board[x][y];
+
 
             
+            do{
+                System.out.println("Select a field( x ): ");
+                xx = scan.nextInt();
+                xx--;
+                System.out.println("Select a field( y ): ");
+                yy = scan.nextInt();
+                yy--;
+            }while(a.get_field_player(x,y)!=0 && a.get_field_player(x,y)!=current_player && a.check_all_pieces(x,y,xx,yy));
+            next=a.visible_board[xx][yy];
             
-            System.out.println("Select a field( x ): ");
-            xx = scan.nextInt();
-            xx--;
-            System.out.println("Select a field( y ): ");
-            yy = scan.nextInt();
-            yy--;
             
-            
-            if(current_player==1){
-                current_player=2;
-            }else{
-                current_player=1;
-            }
             
             a.move(x,y,xx,yy);
-            a.print_board();
-            a.check_mat(current_player);
+            if(a.check_mat(current_player)==true){
+                System.out.println("Zły ruch");
+                a.visible_board[xx][yy]=next;
+                a.visible_board[x][y]=prev;
+                a.print_board();
+                continue;
+            }else{
+                a.print_board();
+                if(a.check_mat(opp)){
+                    System.out.println("Szach");
+                    if(a.check_mat2(opp)){break;}
+                }
+                //a.check_mat(opp);
+                //a.check_mat2(current_player);
+                if(current_player==1){current_player=2;opp=1;}else{current_player=1;opp=2;}
+            }
+            
+            
+            
+            
+        }
+        System.out.println("Wygrał gracz : "+opp);
+        
+    }
+}
+    class piece{
+        int x,y;
+        int piece_type;// 1 pion, 2 koń, 3 goniec, 4 wieża, 5 królowa, 6 król
+        int player;
+        public piece(){this.player=0;} 
+        public void drawmove(int x, int y){};
+        public String print_piece(){return " O";}
+        public String print_move(){return " X";}
+        public int return_player(){return player;}
+        public int return_piece(){return piece_type;}
+        
+        
+    }
+
+    class rook extends piece{//wierza
+        public rook(int x){this.player=x;this.piece_type=4;}
+        public String print_piece(){return "R" + String.valueOf(player);}
+    }
+
+    class bishop extends piece{//goniec
+        public bishop(int x){this.player=x;this.piece_type=3;}
+        public String print_piece(){return "B" + String.valueOf(player);}
+    }
+
+    class king extends piece{//król
+        public king(int x){this.player=x;this.piece_type=6;}
+        public String print_piece(){return "K" + String.valueOf(player);}
+    }
+
+    class queen extends piece{//królowa
+        public queen(int x){this.player=x;this.piece_type=5;}
+        public String print_piece(){return "Q" + String.valueOf(player);}
+    }
+
+    class knight extends piece{//skoczek
+        public knight(int x){this.player=x;this.piece_type=2;}
+        public String print_piece(){return "S" + String.valueOf(player);}
+    }
+
+    class pawn extends piece{//poin
+        public pawn(int x){this.player=x;this.piece_type=1;}
+        public String print_piece(){return "P" + String.valueOf(player);}
+        
+    }
+    class temp extends piece{//poin
+        public temp(int x){this.player=x;this.piece_type=99;}
+        public String print_piece(){return " O";}
+        int xp,yp;
+        public int pawnpositionx(){return x;}
+        public int pawnpositiony(){return y;}
+        public void setpawn(int x,int y){
+        xp=x;
+        yp=y;
         }
     }
-}
 
-class piece{
-    int x,y;
-    int piece_type;// 1 pion, 2 koń, 3 goniec, 4 wieża, 5 królowa, 6 król
-    int player;
-    public piece(){this.player=0;} 
-    public void drawmove(int x, int y){};
-    public String print_piece(){return " O";}
-    public String print_move(){return " X";}
-    public int return_player(){return player;}
-    public int return_piece(){return piece_type;}
-}
 
-class rook extends piece{//wierza
-    public rook(int x){this.player=x;this.piece_type=4;}
-    public String print_piece(){return "R" + String.valueOf(player);}
-}
-
-class bishop extends piece{//goniec
-    public bishop(int x){this.player=x;this.piece_type=3;}
-    public String print_piece(){return "B" + String.valueOf(player);}
-}
-
-class king extends piece{//król
-    public king(int x){this.player=x;this.piece_type=6;}
-    public String print_piece(){return "K" + String.valueOf(player);}
-}
-
-class queen extends piece{//królowa
-    public queen(int x){this.player=x;this.piece_type=5;}
-    public String print_piece(){return "Q" + String.valueOf(player);}
-}
-
-class knight extends piece{//skoczek
-    public knight(int x){this.player=x;this.piece_type=2;}
-    public String print_piece(){return "S" + String.valueOf(player);}
-}
-
-class pawn extends piece{//poin
-    public pawn(int x){this.player=x;this.piece_type=1;}
-    public String print_piece(){return "P" + String.valueOf(player);}
-}
-class temp extends piece{//poin
-    public temp(int x){this.player=x;this.piece_type=99;}
-    public String print_piece(){return "O" + String.valueOf(player);}
-    int xp,yp;
-    public int pawnpositionx(){return x;}
-    public int pawnpositiony(){return y;}
-    public void setpawn(int x,int y){
-    xp=x;
-    yp=y;
-    }
-}
-
-class board {
+class move_controller {
+    
+    
+    
     int temp1_time=0,temp2_time=0;
     //int[][] visible_board= new int[8][8];
     //Player 1 figures
@@ -140,15 +160,28 @@ class board {
     king king2 = new king(2);
     
     piece empty = new piece();
+    /*
     piece[][] visible_board={
         {rook1,knight1,bishop1,queen1,king1,bishop1,knight1,rook1},
         {pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1,pawn1},
         {empty,empty,empty,empty,empty,empty,empty,empty},
-        {empty,empty,empty,empty,empty,empty,empty,king2},
+        {empty,king2,empty,empty,empty,empty,empty,empty},
         {empty,empty,empty,empty,empty,empty,empty,empty},
         {empty,empty,empty,empty,empty,empty,empty,empty},
         {pawn2,pawn2,pawn2,pawn2,pawn2,pawn2,pawn2,pawn2},
         {rook2,knight2,bishop2,king2,queen2,bishop2,knight2,rook2}
+    };
+    */
+    
+    piece[][] visible_board={
+        {king2,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,queen1,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {empty,empty,empty,empty,empty,empty,empty,empty},
+        {pawn2,pawn2,pawn2,pawn2,pawn2,pawn2,pawn2,pawn2},
+        {rook1,empty,empty,empty,king1,empty,empty,rook1}
     };
     
    
@@ -202,6 +235,10 @@ class board {
         }
     }
     
+    void revoke(int xx,int yy,int x,int y){
+        visible_board[x][y]=visible_board[xx][yy]; 
+        visible_board[xx][yy]=empty;
+    }
     
     
     
@@ -227,18 +264,54 @@ class board {
     }
 */
     
-    void check_mat(int player){
+    boolean check_mat(int player){
         for (int i = 0; i < 8; i++) {
             for (int j = 0; j < 8; j++) {
-               if(visible_board[i][j].return_piece()!=0 && visible_board[i][j].return_piece()!=99){
+                //jesli wybrana figura nie jest pusta lub biciem w przelocie i nalezy do gracza
+               if(visible_board[i][j].return_piece()!=0 && visible_board[i][j].return_piece()!=99 && visible_board[i][j].return_player()!=player){
                    if(check_all_pieces(i,j,king_x(player),king_y(player))==true){
-                   System.out.println("Szach");
-                   }
+                   //System.out.println("Szach");
+                   return true;
+                }
                }
             }
-        }  
+        }
+        return false;
     }
     
+    
+    boolean check_mat2(int cplayer){
+        boolean f = true;
+        piece pre, nex;
+        
+        for (int p = 0; p < 8; p++) {
+            for (int o = 0; o < 8; o++) {
+               if(visible_board[p][o].return_piece()!=0 && visible_board[p][o].return_piece()==cplayer && visible_board[p][o].return_piece()!=99){
+                    for (int k = 0; k < 8; k++) {
+                        for (int l = 0; l < 8; l++) {
+                                if(check_all_pieces(p,o,k,l)){
+                                    
+                                    pre=visible_board[p][o];
+                                    nex=visible_board[k][l];
+                                    move(p,o,k,l);
+                                    
+                                    if(check_mat(cplayer)==false){
+                                        visible_board[p][o]=pre;
+                                        visible_board[k][l]=nex;
+                                        return false;
+                                    }
+                                    visible_board[p][o]=pre;
+                                    visible_board[k][l]=nex;
+                                }
+                                  
+                        }
+                    } 
+               }
+            }
+        }
+        System.out.println("Mat");
+        return f;
+    }
     
     
     
@@ -646,7 +719,25 @@ class board {
             if(y<yy){vy=1;}
             int i =x+vx;
             int j =y+vy;
+            
+            
             do{
+                if(Math.abs(y-yy)==2 && x==xx && yy>y){
+                System.out.println("Roszada krótka ");
+                visible_board[xx][yy]=visible_board[x][y];
+                visible_board[x][y]= new piece();
+                visible_board[xx][yy-1]=visible_board[xx][yy+1];
+                visible_board[xx][yy+1]= new piece();
+                break;
+            }
+            if(Math.abs(y-yy)==2 && x==xx && yy<y){
+                System.out.println("Roszada długa");
+                visible_board[xx][yy]=visible_board[x][y];
+                visible_board[x][y]= new piece();
+                visible_board[xx][yy+1]=visible_board[xx][yy-2];
+                visible_board[xx][yy-2]= new piece();
+                break;
+            }
                 if(Math.abs(x-xx)>1 || Math.abs(y-yy) > 1){
                     //System.out.print("co tu sie");
                     break;
